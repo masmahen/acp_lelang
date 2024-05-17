@@ -3,7 +3,6 @@ package com.acp.demo.restcontroller;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,19 +40,24 @@ public class PesertaLelangController {
 	}
 
 	@PostMapping("/upload-dokumen")
-	private DokumenEntity uploadDokumen(@RequestParam("file") MultipartFile file, @RequestParam("ktp") Long ktp) {
-		PesertaLelangEntity pesertaLelang = pesertaRepo.findById(ktp); //rung ketemu iki kenopo masalahe
+	private DokumenEntity uploadDokumen(@RequestParam("file") MultipartFile file, @RequestParam("ktp") Long ktp) throws Exception {
+		PesertaLelangEntity pesertaLelang = pesertaRepo.findById(ktp).orElse(null);
+		
+		if(pesertaLelang != null) {
+			String namaFile = file.getOriginalFilename();
+			String tipeFile = file.getContentType();
+			String pathFile = saveFile(file);
 
-		String namaFile = file.getOriginalFilename();
-		String tipeFile = file.getContentType();
-		String pathFile = saveFile(file);
-
-		DokumenEntity dokumenEntity = new DokumenEntity();
-		dokumenEntity.setNamaFile(namaFile);
-		dokumenEntity.setTipeFile(tipeFile);
-		dokumenEntity.setPathFile(pathFile);
-		dokumenEntity.setPesertaLelang(pesertaLelang);
-		return dokumenRepo.save(dokumenEntity);
+			DokumenEntity dokumenEntity = new DokumenEntity();
+			dokumenEntity.setNamaFile(namaFile);
+			dokumenEntity.setTipeFile(tipeFile);
+			dokumenEntity.setPathFile(pathFile);
+			dokumenEntity.setPesertaLelang(pesertaLelang);
+			return dokumenRepo.save(dokumenEntity);
+		} else {
+			throw new Exception("Not found!");
+		}
+		
 	}
 
 	private String saveFile(MultipartFile file) throws IOException {
