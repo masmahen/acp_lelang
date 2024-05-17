@@ -1,7 +1,10 @@
 package com.acp.demo.restcontroller;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,20 +26,44 @@ public class PesertaLelangController {
 
 	@Autowired
 	private PesertaLelangRepository pesertaRepo;
-	
+
 	@Autowired
 	private DokumenRepository dokumenRepo;
-	
+
 	@PostMapping
 	public PesertaLelangEntity daftarPesertaLelang(@RequestBody PesertaLelangEntity pesertaLelang) {
 		return pesertaRepo.save(pesertaLelang);
 	}
-	
+
 	@GetMapping
-	public List<PesertaLelangEntity> getAllPesertaLelang(){
+	public List<PesertaLelangEntity> getAllPesertaLelang() {
 		return pesertaRepo.findAll();
 	}
-	
-	//post mapping karo get mapping nggo dokumen e durung
-	//fitur login nggo admin karo pesertane durung
+
+	@PostMapping("/upload-dokumen")
+	private DokumenEntity uploadDokumen(@RequestParam("file") MultipartFile file, @RequestParam("ktp") Long ktp) {
+		PesertaLelangEntity pesertaLelang = pesertaRepo.findById(ktp); //rung ketemu iki kenopo masalahe
+
+		String namaFile = file.getOriginalFilename();
+		String tipeFile = file.getContentType();
+		String pathFile = saveFile(file);
+
+		DokumenEntity dokumenEntity = new DokumenEntity();
+		dokumenEntity.setNamaFile(namaFile);
+		dokumenEntity.setTipeFile(tipeFile);
+		dokumenEntity.setPathFile(pathFile);
+		dokumenEntity.setPesertaLelang(pesertaLelang);
+		return dokumenRepo.save(dokumenEntity);
+	}
+
+	private String saveFile(MultipartFile file) throws IOException {
+		String fileName = UUID.randomUUID().toString()+"."+file.getOriginalFilename().split("\\.")[1];
+		String filePath = "path/to/storage"+fileName;
+		File dest = new File(filePath);
+		file.transferTo(dest);
+		
+		return filePath;
+		
+	}
+	// fitur login nggo admin karo pesertane durung
 }
