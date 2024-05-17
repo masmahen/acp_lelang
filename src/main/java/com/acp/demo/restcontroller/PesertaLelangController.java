@@ -83,7 +83,7 @@ public class PesertaLelangController {
 			
 			return ResponseEntity.ok().headers(headers).body(bytes);
 		} else {
-			throw new Exception("Not found!");
+			throw new Exception("Dokumen tidak ditemukan!");
 		}
 	}
 
@@ -105,5 +105,6 @@ public class PesertaLelangController {
 		inputStream.close();
 		return bytes;
 	}
+	
 	// fitur login nggo admin karo pesertane durung
 }
