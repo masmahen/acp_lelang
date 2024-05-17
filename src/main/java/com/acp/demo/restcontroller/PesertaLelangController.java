@@ -55,7 +55,7 @@ public class PesertaLelangController {
 			dokumenEntity.setPesertaLelang(pesertaLelang);
 			return dokumenRepo.save(dokumenEntity);
 		} else {
-			throw new Exception("Not found!");
+			throw new Exception("KTP " + ktp + "tidak ditemukan!");
 		}
 		
 	}
